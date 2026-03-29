@@ -44,6 +44,10 @@ class UserRepository {
   async findAllActiveByRoleAndCompany(roles, companyId) {
     return User.find({ role: { $in: roles }, company_id: companyId, is_active: true }).lean();
   }
+
+  async deleteById(id) {
+    return User.findByIdAndDelete(id);
+  }
 }
 
 module.exports = new UserRepository();

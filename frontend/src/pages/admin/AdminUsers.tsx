@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Search, Loader2 } from "lucide-react";
+import { Plus, Search, Loader2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -54,6 +54,23 @@ export default function AdminUsers() {
       toast({ 
         title: "Failed to create user", 
         description: err.response?.data?.message || "Something went wrong",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return api.delete(`/users/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast({ title: "User deleted", description: "Account removed from organization." });
+    },
+    onError: (err: any) => {
+      toast({ 
+        title: "Deletion failed", 
+        description: err.response?.data?.message || "Check constraints or permissions.",
         variant: "destructive"
       });
     }
@@ -149,6 +166,7 @@ export default function AdminUsers() {
                   <th className="text-left p-4 font-medium text-muted-foreground">Role</th>
                   <th className="text-left p-4 font-medium text-muted-foreground hidden md:table-cell">Reporting Manager</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                  <th className="text-right p-4 font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -186,6 +204,21 @@ export default function AdminUsers() {
                                <div className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Pending Invite
                             </div>
                          )}
+                      </td>
+                      <td className="p-4 text-right">
+                         <Button 
+                           variant="ghost" 
+                           size="icon" 
+                           onClick={() => {
+                             if(confirm(`Are you sure you want to delete ${u.name || u.email}?`)) {
+                               deleteUserMutation.mutate(u._id);
+                             }
+                           }}
+                           className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                           disabled={deleteUserMutation.isPending}
+                         >
+                           <Trash2 className="h-4 w-4" />
+                         </Button>
                       </td>
                     </tr>
                   ))

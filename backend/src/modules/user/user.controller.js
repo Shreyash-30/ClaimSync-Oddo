@@ -38,6 +38,19 @@ class UserController {
       next(error);
     }
   }
+
+  async deleteUser(req, res, next) {
+    try {
+      const { id } = req.params;
+      const adminId = req.user.user_id;
+      const companyId = req.user.company_id;
+
+      const result = await userService.deleteUser(adminId, companyId, id);
+      return res.status(200).json(result);
+    } catch (error) {
+       next(error);
+    }
+  }
 }
 
 module.exports = new UserController();

@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import ActivateAccount from "./pages/auth/ActivateAccount";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import EmployeeExpenses from "./pages/employee/EmployeeExpenses";
 import AddExpense from "./pages/employee/AddExpense";
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/activate/:token" element={<ActivateAccount />} />
               <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
               <Route path="/employee/expenses" element={<EmployeeExpenses />} />
               <Route path="/employee/expenses/new" element={<AddExpense />} />
