@@ -3,11 +3,12 @@ import { StatCard } from "@/components/shared/StatCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Receipt, FileText, Clock, Plus, Loader2, AlertCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
 export default function EmployeeDashboard() {
+  const navigate = useNavigate();
   const { data: expensesRes, isLoading, error } = useQuery({
     queryKey: ["expenses", "my"],
     queryFn: async () => {
@@ -78,11 +79,16 @@ export default function EmployeeDashboard() {
                   <th className="text-left p-3 font-medium text-muted-foreground">Amount</th>
                   <th className="text-left p-3 font-medium text-muted-foreground hidden md:table-cell">Date</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-right pr-4">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {recentExpenses.map((e: any) => (
-                  <tr key={e._id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                  <tr 
+                    key={e._id} 
+                    className={`border-b last:border-0 transition-colors ${e.status === 'DRAFT' ? 'hover:bg-primary/5 cursor-pointer' : 'hover:bg-muted/10'}`}
+                    onClick={() => e.status === 'DRAFT' && navigate(`/employee/expenses/${e._id}/edit`)}
+                  >
                     <td className="p-3">
                        <div className="font-medium text-primary leading-tight">{e.merchant || 'UNKNOWN'}</div>
                        <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{e.description}</div>
@@ -100,6 +106,13 @@ export default function EmployeeDashboard() {
                     </td>
                     <td className="p-3 hidden md:table-cell text-muted-foreground">{new Date(e.date).toLocaleDateString()}</td>
                     <td className="p-3"><StatusBadge status={e.status?.toLowerCase() || 'draft'} /></td>
+                    <td className="p-3 text-right">
+                       {e.status === 'DRAFT' && (
+                         <Button variant="ghost" size="sm" className="h-7 text-primary hover:bg-primary/10" onClick={() => navigate(`/employee/expenses/${e._id}/edit`)}>
+                           Edit
+                         </Button>
+                       )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

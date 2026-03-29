@@ -25,19 +25,22 @@ class ReceiptService {
       let isDuplicate = false;
 
       if (receipt) {
-         // Duplicate detected -> Flag violation as per architecture rules securely instead of throwing error natively
-         isDuplicate = true;
+         // Duplicate detected -> Flag violation as per architecture rules but permit flow
          const duplicateViolation = {
              type: 'DUPLICATE_RECEIPT',
              field: 'hash',
-             message: 'A mathematically identical receipt has already been organically uploaded into the system.'
+             message: 'A duplicate receipt has been detected. This expense has been flagged for manual administrative review.'
          };
          await expenseRepository.findByIdAndUpdate(expenseId, {
              $push: { violations: duplicateViolation, receipt_ids: receipt._id },
              receipt_processing_status: 'DONE'
          });
 
-         await auditService.log('Expense', expenseId, 'EXPENSE_UPDATED', userId, null, { violations_added: 1 });
+         await auditService.log('Expense', expenseId, 'EXPENSE_UPDATED', userId, null, { duplicate_detected: 1 });
+         
+         // Append dynamic flag for frontend to use natively
+         receipt.is_duplicate = true;
+         isDuplicate = true;
       } else {
          // 4. Create NEW receipt record seamlessly
          const receiptData = {

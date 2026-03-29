@@ -4,11 +4,12 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Loader2, AlertCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
 export default function EmployeeExpenses() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
   const { data: expensesRes, isLoading, error } = useQuery({
@@ -66,7 +67,11 @@ export default function EmployeeExpenses() {
               </thead>
               <tbody>
                 {filtered.map((e: any) => (
-                  <tr key={e._id} className="border-b last:border-0 hover:bg-muted/20 transition-colors cursor-pointer">
+                  <tr 
+                    key={e._id} 
+                    className={`border-b last:border-0 transition-colors ${e.status === 'DRAFT' ? 'hover:bg-primary/5 cursor-pointer' : 'hover:bg-muted/10'}`}
+                    onClick={() => e.status === 'DRAFT' && navigate(`/employee/expenses/${e._id}/edit`)}
+                  >
                     <td className="p-3 font-medium">{e.description || 'N/A'}</td>
                     <td className="p-3 text-muted-foreground capitalize">{e.category}</td>
                     <td className="p-3">{e.currency} {(e.amount || 0).toFixed(2)}</td>

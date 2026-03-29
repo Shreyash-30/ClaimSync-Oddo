@@ -11,6 +11,7 @@ import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import EmployeeExpenses from "./pages/employee/EmployeeExpenses";
 import AddExpense from "./pages/employee/AddExpense";
+import EditExpense from "./pages/employee/EditExpense";
 import EmployeeReports from "./pages/employee/EmployeeReports";
 import ManagerApprovals from "./pages/manager/ManagerApprovals";
 import FinanceDashboard from "./pages/finance/FinanceDashboard";
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
               <Route path="/employee/expenses" element={<EmployeeExpenses />} />
               <Route path="/employee/expenses/new" element={<AddExpense />} />
+              <Route path="/employee/expenses/:id/edit" element={<EditExpense />} />
               <Route path="/employee/reports" element={<EmployeeReports />} />
               <Route path="/manager/approvals" element={<ManagerApprovals />} />
               <Route path="/finance/dashboard" element={<FinanceDashboard />} />

@@ -69,6 +69,27 @@ class ExpenseController {
       next(error);
     }
   }
+
+  async updateExpense(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { amount, currency, category, date, description } = req.body;
+      const userId = req.user.user_id;
+
+      const expense = await expenseService.updateExpense(
+        id,
+        { amount, currency, category, date, description },
+        userId
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: expense
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new ExpenseController();

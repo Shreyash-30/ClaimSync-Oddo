@@ -13,7 +13,14 @@ const userRepository = require('../user/user.repository');
 class ExpenseService {
   async createExpense(data, userId, companyId) {
     try {
-      // 1. Apply currency conversion
+      // 1. Validating Date strictly: Ensure it is not mathematically in the future
+      const expenseDate = new Date(data.date);
+      const today = new Date();
+      if (expenseDate > today) {
+         throw new Error('Expense date cannot be in the future.');
+      }
+
+      // 2. Apply currency conversion
       const { converted_amount, conversion_rate } = await convertToBaseCurrency(data.amount, data.currency);
 
       const expenseData = {
@@ -179,6 +186,48 @@ class ExpenseService {
       // 6. Audit Logging mapping natively 
       await auditService.log('Expense', updatedExpense._id, 'EXPENSE_SUBMITTED', userId, null, { risk_score: risk_score });
       await auditService.log('Approval', updatedExpense._id, 'APPROVAL_CREATED', userId, null, { steps: workflowSteps.length });
+
+      return updatedExpense;
+
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async updateExpense(expenseId, data, userId) {
+    try {
+      const expense = await expenseRepository.findById(expenseId);
+      if (!expense) throw new Error('Expense not found');
+      if (expense.status !== 'DRAFT') {
+         throw new Error('Only DRAFT expenses can be modified');
+      }
+
+      if (data.date) {
+         const expenseDate = new Date(data.date);
+         const today = new Date();
+         if (expenseDate > today) {
+            throw new Error('Expense date cannot be in the future.');
+         }
+      }
+
+      const updateData = { ...data };
+      
+      // Recalculate currency if needed
+      if ((data.amount !== undefined && data.amount !== expense.amount) || (data.currency && data.currency !== expense.currency)) {
+          const amt = data.amount !== undefined ? data.amount : expense.amount;
+          const cur = data.currency || expense.currency;
+          const { converted_amount, conversion_rate } = await convertToBaseCurrency(amt, cur);
+          updateData.converted_amount = converted_amount;
+          updateData.conversion_rate = conversion_rate;
+          updateData.conversion_rate_snapshot = conversion_rate;
+          updateData.conversion_timestamp = new Date();
+      }
+
+      const updatedExpense = await expenseRepository.findByIdAndUpdate(expenseId, updateData);
+
+      // Snapshot & Audit
+      await versionService.createSnapshot(updatedExpense._id, updatedExpense.version, updatedExpense);
+      await auditService.log('Expense', updatedExpense._id, 'EXPENSE_UPDATED', userId, null, { updated_fields: Object.keys(data) });
 
       return updatedExpense;
 

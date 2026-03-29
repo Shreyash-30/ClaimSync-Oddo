@@ -73,6 +73,7 @@ apiRouter.get('/users', authMiddleware, authorize(['ADMIN']), userController.get
 // Expenses routes (Protected structurally)
 apiRouter.post('/expenses', authMiddleware, idempotencyMiddleware, expenseController.createExpense);
 apiRouter.get('/expenses', authMiddleware, expenseController.getExpenses);
+apiRouter.put('/expenses/:id', authMiddleware, idempotencyMiddleware, expenseController.updateExpense);
 apiRouter.post('/expenses/:expenseId/declaration', authMiddleware, idempotencyMiddleware, expenseController.declareMissingReceipt);
 apiRouter.post('/expenses/:id/submit', authMiddleware, idempotencyMiddleware, expenseController.submitExpense);
 

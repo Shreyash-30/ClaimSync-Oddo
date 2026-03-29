@@ -145,7 +145,10 @@ export default function AddExpense() {
          // Start Phase 2 Sequence
          setProgressStep("uploading");
          uploadReceiptMutation.mutate({ file: receipt, expenseId }, {
-            onSuccess: () => {
+            onSuccess: (uploadRes) => {
+               if (uploadRes.data?.is_duplicate) {
+                  toast({ title: "Duplicate Detected", description: "This receipt was already added. Flagging for review." });
+               }
                
                setProgressStep("submitting");
                
@@ -213,8 +216,8 @@ export default function AddExpense() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="date">Date</Label>
-              <Input id="date" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required className="mt-1.5" disabled={isProcessing} />
+              <Label htmlFor="date">Date (Future dates disabled)</Label>
+              <Input id="date" type="date" max={new Date().toISOString().split("T")[0]} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required className="mt-1.5" disabled={isProcessing} />
             </div>
           </div>
 
