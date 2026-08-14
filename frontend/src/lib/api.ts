@@ -1,11 +1,11 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
-// Note: Create an environment variable for actual remote deployment
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
+const resolvedBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8081/api/v1";
 
 export const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: resolvedBaseUrl,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },

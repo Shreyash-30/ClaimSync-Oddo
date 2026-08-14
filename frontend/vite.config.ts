@@ -6,7 +6,9 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080,
+    // Keep the Vite dev server separate from Apache (8080) and Spring Boot (8081).
+    port: 3000,
+    strictPort: true,
     hmr: {
       overlay: false,
     },

@@ -120,7 +120,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("erms_user", JSON.stringify(newUser));
       return newUser;
     } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Registration failed.");
+      const response = err.response?.data;
+      const validation = response?.errors
+        ? Object.values(response.errors).join(" ")
+        : undefined;
+      throw new Error(validation || response?.message || err.message || "Registration failed.");
     }
   };
 
